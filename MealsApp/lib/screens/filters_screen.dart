@@ -1,8 +1,14 @@
 import '../widgets/main_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FiltersScreen extends StatefulWidget {
   static const routeName = 'filters';
+
+  final Function saveFilters;
+  final Map<String, bool> currentFilters;
+
+  FiltersScreen(this.currentFilters, this.saveFilters);
 
   @override
   _FiltersScreenState createState() => _FiltersScreenState();
@@ -13,6 +19,15 @@ class _FiltersScreenState extends State<FiltersScreen> {
   var _vegetarian = false;
   var _vegan = false;
   var _lactoseFree = false;
+
+  @override
+  initState() {
+    super.initState();
+    _glutenFree = widget.currentFilters['gluten'];
+    _vegetarian = widget.currentFilters['vegetarian'];
+    _vegan = widget.currentFilters['vegan'];
+    _lactoseFree = widget.currentFilters['lactose'];
+  }
 
   Widget _buildSwitchListTile(
     String title,
@@ -33,6 +48,27 @@ class _FiltersScreenState extends State<FiltersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Your Filters"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              final selectedFilters = {
+                'gluten': _glutenFree,
+                'lactose': _lactoseFree,
+                'vegan': _vegan,
+                'vegetarian': _vegetarian,
+              };
+              widget.saveFilters(selectedFilters);
+              Fluttertoast.showToast(
+                msg: 'Saved',
+                toastLength: Toast.LENGTH_SHORT,
+                textColor: Colors.black,
+                fontSize: 16,
+                backgroundColor: Colors.grey[200],
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [

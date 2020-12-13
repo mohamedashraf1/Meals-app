@@ -5,10 +5,48 @@ import 'screens/category_meals_screen.dart';
 import 'screens/meal_detail_screen.dart';
 import 'screens/tabs_screen.dart';
 import 'screens/filters_screen.dart';
+import 'models/meal.dart';
+import './data.dart';
 
 void main() => runApp(MealsApp());
 
-class MealsApp extends StatelessWidget {
+class MealsApp extends StatefulWidget {
+  @override
+  _MealsAppState createState() => _MealsAppState();
+}
+
+class _MealsAppState extends State<MealsApp> {
+  Map<String, bool> _filters = {
+    'gluten': false,
+    'lactose': false,
+    'vegan': false,
+    'vegetarian': false,
+  };
+
+  List<Meal> _availableMeals = Meals;
+
+  void _setFilters(Map<String, bool> filtersData) {
+    setState(() {
+      _filters = filtersData;
+
+      _availableMeals = Meals.where((element) {
+        if (_filters['gluten'] && !element.isGlutenFree) {
+          return false;
+        }
+        if (_filters['lactose'] && !element.isLactoseFree) {
+          return false;
+        }
+        if (_filters['vegan'] && !element.isVegan) {
+          return false;
+        }
+        if (_filters['vegetarian'] && !element.isVegetarian) {
+          return false;
+        }
+        return true;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,9 +74,10 @@ class MealsApp extends StatelessWidget {
       //initialRoute: '/',
       routes: {
         '/': (ctx) => TabsSreen(),
-        CategoryMealsScreen.routeName: (ctx) => CategoryMealsScreen(),
+        CategoryMealsScreen.routeName: (ctx) =>
+            CategoryMealsScreen(_availableMeals),
         MealDetailScreen.routeName: (ctx) => MealDetailScreen(),
-        FiltersScreen.routeName: (ctx) => FiltersScreen(),
+        FiltersScreen.routeName: (ctx) => FiltersScreen(_filters, _setFilters),
       },
       onGenerateRoute: (setting) {
         print(setting.arguments);
